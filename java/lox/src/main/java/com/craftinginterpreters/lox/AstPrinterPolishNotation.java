@@ -1,5 +1,8 @@
 package com.craftinginterpreters.lox;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AstPrinterPolishNotation implements  Expr.Visitor<String>{
     String print(Expr expr) {
         return expr.accept(this);
@@ -7,12 +10,17 @@ public class AstPrinterPolishNotation implements  Expr.Visitor<String>{
 
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
-        return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+        return parenthesize(expr.operator.lexeme, Arrays.asList(expr.left, expr.right));
+    }
+
+    @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return parenthesize("ternary", Arrays.asList(expr.left, expr.middle, expr.right));
     }
 
     @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
-        return parenthesize("group", expr.expression);
+        return parenthesize("group", expr.expressions);
     }
 
     @Override
@@ -23,10 +31,10 @@ public class AstPrinterPolishNotation implements  Expr.Visitor<String>{
 
     @Override
     public String visitUnaryExpr(Expr.Unary expr) {
-        return parenthesize(expr.operator.lexeme, expr.right);
+        return parenthesize(expr.operator.lexeme, Arrays.asList(expr.right));
     }
 
-    private String parenthesize(String name, Expr ...exprs) {
+    private String parenthesize(String name, List<Expr> exprs) {
         StringBuilder builder = new StringBuilder();
         builder.append("(").append(name);
         for(Expr expr : exprs) {
@@ -42,7 +50,7 @@ public class AstPrinterPolishNotation implements  Expr.Visitor<String>{
                 new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1),
                         new Expr.Literal(123)),
                 new Token(TokenType.STAR, "*", null, 1),
-                new Expr.Grouping(new Expr.Literal(45.67)
+                new Expr.Grouping(Arrays.asList(new Expr.Literal(45.67))
                 ));
     }
 

@@ -98,11 +98,22 @@ public class Parser {
     }
 
     private Expr factor() {
-        Expr expr = unary();
+        Expr expr = ternary();
         while (match(SLASH, STAR)) {
             Token operator = previous();
-            Expr right = unary();
+            Expr right = ternary();
             expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr ternary() {
+        Expr expr = unary();
+        while(match(QUESTION_MARK)) {
+            Expr middle = unary();
+            consume(COLON, "Expect ':' after '?'");
+            Expr right = unary();
+            expr = new Expr.Ternary(expr, middle, right);
         }
         return expr;
     }

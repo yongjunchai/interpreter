@@ -14,8 +14,13 @@ public class AstPrinterReversePolishNotation implements  Expr.Visitor<String>{
     }
 
     @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return parenthesize("ternary", Arrays.asList(expr.left, expr.middle, expr.right));
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
-        return parenthesize("group", Arrays.asList(expr.expression));
+        return parenthesize("group", expr.expressions);
     }
 
     @Override
@@ -45,7 +50,7 @@ public class AstPrinterReversePolishNotation implements  Expr.Visitor<String>{
                 new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1),
                         new Expr.Literal(123)),
                 new Token(TokenType.STAR, "*", null, 1),
-                new Expr.Grouping(new Expr.Literal(45.67)
+                new Expr.Grouping(Arrays.asList(new Expr.Literal(45.67))
                 ));
     }
 

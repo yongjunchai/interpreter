@@ -6,6 +6,7 @@ abstract class Expr {
 
     interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
+        R visitTernaryExpr(Ternary expr);
         R visitGroupingExpr(Grouping expr);
         R visitLiteralExpr(Literal expr);
         R visitUnaryExpr(Unary expr);
@@ -28,18 +29,29 @@ abstract class Expr {
         }
     }
 
-    static class Grouping extends Expr {
-        Grouping(List<Expr> exprs) {
-            this.exprs = exprs;
-            this.expression = null;
-        }
-        Grouping(Expr expression) {
-            this.expression = expression;
-            this.exprs = null;
+    static class Ternary extends Expr {
+        Ternary(Expr left, Expr middle, Expr right) {
+            this.left = left;
+            this.middle = middle;
+            this.right = right;
         }
 
-        final Expr expression;
-        final List<Expr> exprs;
+        final Expr left;
+        final Expr middle;
+        final Expr right;
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTernaryExpr(this);
+        }
+    }
+
+    static class Grouping extends Expr {
+        Grouping(List<Expr> expressions) {
+            this.expressions = expressions;
+        }
+
+        final List<Expr> expressions;
 
         @Override
         <R> R accept(Visitor<R> visitor) {
