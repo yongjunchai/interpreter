@@ -48,13 +48,21 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+        //dump tokens
+        System.out.println("dump tokens:");
+        for(Token token : tokens) {
+            System.out.println(token.toString());
+        }
         Parser parser = new Parser(tokens);
-        Expr expr = parser.parse();
+        List<Expr> exprs = parser.parse();
 
         // Stop if there was a syntax error
         if(hadError) return;
-
-        System.out.println(new AstPrinterPolishNotation().print(expr));
+        //dump expression
+        System.out.println("dump parsed expression -- pre order, polish notation:");
+        for (Expr expr : exprs) {
+            System.out.println(new AstPrinterPolishNotation().print(expr));
+        }
     }
 
     static void error(int line, String message) {

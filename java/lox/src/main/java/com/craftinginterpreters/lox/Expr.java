@@ -29,11 +29,17 @@ abstract class Expr {
     }
 
     static class Grouping extends Expr {
+        Grouping(List<Expr> exprs) {
+            this.exprs = exprs;
+            this.expression = null;
+        }
         Grouping(Expr expression) {
             this.expression = expression;
+            this.exprs = null;
         }
 
         final Expr expression;
+        final List<Expr> exprs;
 
         @Override
         <R> R accept(Visitor<R> visitor) {
