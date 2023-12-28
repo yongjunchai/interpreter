@@ -53,7 +53,13 @@ public class Parser {
         if(match(PRINT)) return printStatement();
         if(match(WHILE)) return whileStatement();
         if(match(LEFT_BRACE)) return new Stmt.Block(block());
+        if(match(BREAK)) return breakLoop();
         return expressionStatement();
+    }
+
+    private Stmt breakLoop() {
+        consume(SEMICOLON, "Expect ';' after break");
+        return  new Stmt.Break(previous());
     }
 
     private Stmt forStatement() {

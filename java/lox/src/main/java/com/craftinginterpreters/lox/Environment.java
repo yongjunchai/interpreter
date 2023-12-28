@@ -6,9 +6,18 @@ import java.util.Map;
 public class Environment {
     final Environment enclosing;
     private final Map<String, Object> values = new HashMap<>();
+    private boolean isLoop;
 
     Environment() {
         enclosing = null;
+    }
+
+    public boolean isLoop() {
+        return isLoop;
+    }
+
+    public void setLoop(boolean loop) {
+        isLoop = loop;
     }
 
     Environment(Environment enclosing) {

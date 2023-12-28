@@ -4,6 +4,8 @@ package com.craftinginterpreters.lox;
 import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    private static class LoopBreak extends  RuntimeException {}
+
     private Environment environment = new Environment();
 
     @Override
@@ -215,9 +217,41 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        while (isTruthy(evaluate(stmt.condition))) {
-            execute(stmt.body);
+        //update environment to prepare for break
+        Environment oldEnv = this.environment;
+        try {
+            Environment environment = new Environment(oldEnv);
+            this.environment = environment;
+            environment.setLoop(true);
+            while (isTruthy(evaluate(stmt.condition))) {
+                execute(stmt.body);
+            }
+        }
+        catch (LoopBreak ex) {
+
+        }
+        finally {
+            this.environment = oldEnv;
         }
         return null;
+    }
+
+    @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        boolean insideLoop = false;
+        Environment cur = this.environment;
+        while (cur != null) {
+            if(cur.isLoop()) {
+                insideLoop = true;
+                break;
+            }
+            cur = cur.enclosing;
+        }
+        if (insideLoop) {
+            throw new LoopBreak();
+        }
+        else {
+            throw new RuntimeError(stmt.name,  "break statement must be inside loop");
+        }
     }
 }
