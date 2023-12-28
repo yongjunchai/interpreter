@@ -30,6 +30,11 @@ public class AstPrinterReversePolishNotation implements  Expr.Visitor<String>{
     }
 
     @Override
+    public String visitLogicExpr(Expr.Logic expr) {
+        return null;
+    }
+
+    @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, Arrays.asList(expr.right));
     }
