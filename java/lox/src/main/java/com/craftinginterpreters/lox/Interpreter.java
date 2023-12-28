@@ -1,11 +1,11 @@
 package com.craftinginterpreters.lox;
 
-import jdk.dynalink.linker.LinkerServices;
 
 import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private Environment environment = new Environment();
+    private Object NOT_INIT_STATE = new Object();
 
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
@@ -89,7 +89,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        Object value = environment.get(expr.name);
+        if (value == NOT_INIT_STATE) {
+            throw new RuntimeError(expr.name, "access not initialized variable.");
+        }
+        return value;
     }
 
     private void checkNumberOperand(Token operator, Object operand) {
@@ -127,6 +131,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             for (Stmt statement : statements) {
                 execute(statement);
             }
+        }
+        catch (RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
+    void interpret(Expr expr) {
+        try {
+            Object value = evaluate(expr);
+            System.out.println(stringify(value));
         }
         catch (RuntimeError error) {
             Lox.runtimeError(error);
@@ -183,7 +197,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
-        Object value = null;
+        Object value = NOT_INIT_STATE;
         if(stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }

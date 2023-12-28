@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Lox {
 
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
-        run(new String(bytes, Charset.defaultCharset()));
+        run(new String(bytes, Charset.defaultCharset()), false);
         if(hadError) {
             System.exit(65);
         }
@@ -45,20 +46,38 @@ public class Lox {
             System.out.println("> ");
             String line = reader.readLine();
             if(line == null) break;
-            run(line);
+            run(line, true);
             hadError = false;
         }
     }
 
-    private static void run(String source) {
+    public static void clearParseError() {
+        hadError = false;
+    }
+
+    private static void run(String source, boolean isRepl) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        if (isRepl) {
+            Object obj = parser.parseRepl();
+            if (hadError)
+                return;
+            if(obj instanceof List) {
+                interpreter.interpret((List<Stmt>) obj);
+            }
+            else if (obj instanceof Expr) {
+                interpreter.interpret((Expr) obj);
+            }
 
-        // Stop if there was a syntax error
-        if(hadError) return;
-        interpreter.interpret(statements);
+        }
+        else {
+            List<Stmt> statements = parser.parse();
+
+            // Stop if there was a syntax error
+            if(hadError) return;
+            interpreter.interpret(statements);
+        }
     }
 
     static void error(int line, String message) {

@@ -24,6 +24,22 @@ public class Parser {
         return statements;
     }
 
+    Object parseRepl() {
+        List<Stmt> statements = new ArrayList<>();
+        while (! isAtEnd()) {
+            statements.add(declaration());
+        }
+        if (statements.isEmpty() || (statements.size() == 1 && statements.get(0) == null))
+        {
+            Lox.clearParseError();
+            current = 0;
+            return expression();
+        }
+        else {
+            return statements;
+        }
+    }
+
     private Stmt declaration() {
         try {
             if(match(VAR)) return varDeclaration();
