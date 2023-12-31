@@ -139,6 +139,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return environment.get(expr.name);
     }
 
+    @Override
+    public Object visitLambdaExpr(Expr.Lambda expr) {
+        Stmt.Function fun = new Stmt.Function(expr.name, expr.params, expr.body);
+        LoxFunction function = new LoxFunction(fun, environment);
+        return function;
+    }
+
     private void checkNumberOperand(Token operator, Object operand) {
         if (operand instanceof Double)
             return;

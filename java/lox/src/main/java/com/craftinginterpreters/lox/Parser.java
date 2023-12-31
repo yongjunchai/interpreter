@@ -4,6 +4,7 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.craftinginterpreters.lox.TokenType.*;
 
@@ -38,7 +39,14 @@ public class Parser {
     }
 
     private Stmt.Function function(String kind) {
-        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        Token name;
+        if ("lambda".equals(kind)) {
+            name = new Token(IDENTIFIER, UUID.randomUUID().toString(), null, previous().line);
+        }
+        else {
+            name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        }
+
         consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
         List<Token> parameters = new ArrayList<>();
         if (!check(RIGHT_PAREN)) {
@@ -309,7 +317,14 @@ public class Parser {
                 if (arguments.size() >= 255) {
                     error(peek(), "Can't have more than 255 arguments");
                 }
-                arguments.add(expression());
+                if (match(FUN)) {
+                    Stmt.Function fun = function("lambda");
+                    Expr.Lambda lambda = new Expr.Lambda(fun.name, fun.params, fun.body);
+                    arguments.add(lambda);
+                }
+                else {
+                    arguments.add(expression());
+                }
             }
             while (match(COMMA));
         }

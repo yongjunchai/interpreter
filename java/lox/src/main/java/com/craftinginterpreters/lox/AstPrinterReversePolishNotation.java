@@ -49,6 +49,11 @@ public class AstPrinterReversePolishNotation implements  Expr.Visitor<String>{
         return expr.name.lexeme;
     }
 
+    @Override
+    public String visitLambdaExpr(Expr.Lambda expr) {
+        return null;
+    }
+
     private String parenthesize(String name, List<Expr> exprs) {
         StringBuilder builder = new StringBuilder();
         builder.append("(");
