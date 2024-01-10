@@ -1,12 +1,14 @@
 package com.craftinginterpreters.lox;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Environment {
     final Environment enclosing;
-    private final Map<String, Object> values = new HashMap<>();
-
+    private final Map<String, Integer> values = new HashMap<>();
+    private final ArrayList<Object> valuesArray = new ArrayList<>();
     Environment() {
         enclosing = null;
     }
@@ -16,11 +18,12 @@ public class Environment {
     }
 
     void define(String name, Object value) {
-        values.put(name, value);
+        valuesArray.add(value);
+        values.put(name, valuesArray.size() - 1);
     }
 
-    Object getAt(int distance, String name) {
-        return ancestor(distance).values.get(name);
+    Object getAt(int distance, int index) {
+        return ancestor(distance).valuesArray.get(index);
     }
 
     Environment ancestor(int distance) {
@@ -31,14 +34,14 @@ public class Environment {
         return environment;
     }
 
-    void assignAt(int distance, Token name, Object value) {
-        ancestor(distance).values.put(name.lexeme, value);
+    void assignAt(int distance, int index, Object value) {
+        ancestor(distance).valuesArray.set(index, value);
     }
 
 
     Object get(Token name) {
         if(values.containsKey(name.lexeme)) {
-            return values.get(name.lexeme);
+            return valuesArray.get(values.get(name.lexeme));
         }
         if (enclosing != null) {
             return enclosing.get(name);
@@ -48,7 +51,7 @@ public class Environment {
 
     void assign(Token name, Object value) {
         if (values.containsKey(name.lexeme)) {
-            values.put(name.lexeme, value);
+            valuesArray.set(values.get(name.lexeme), value);
             return;
         }
         if (enclosing != null) {
