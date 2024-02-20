@@ -8,6 +8,10 @@ public class LoxFunction implements LoxCallable{
     private final boolean isInitializer;
     private final boolean isStatic;
 
+    public boolean isGetter() {
+        return declaration.params == null;
+    }
+
     LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer, boolean isStatic) {
         this.isInitializer = isInitializer;
         this.declaration = declaration;
@@ -39,8 +43,10 @@ public class LoxFunction implements LoxCallable{
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
         Environment environment = new Environment(closure);
-        for (int i = 0; i < declaration.params.size(); ++ i) {
-            environment.define(declaration.params.get(i).lexeme, arguments.get(i));
+        if (null != declaration.params) {
+            for (int i = 0; i < declaration.params.size(); ++ i) {
+                environment.define(declaration.params.get(i).lexeme, arguments.get(i));
+            }
         }
         try {
             interpreter.executeBlock(declaration.body, environment);
