@@ -6,17 +6,19 @@ public class LoxFunction implements LoxCallable{
     private final Stmt.Function declaration;
     private final Environment closure;
     private final boolean isInitializer;
+    private final boolean isStatic;
 
-    LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer) {
+    LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer, boolean isStatic) {
         this.isInitializer = isInitializer;
         this.declaration = declaration;
         this.closure = closure;
+        this.isStatic = isStatic;
     }
 
     LoxFunction bind(LoxInstance instance) {
         Environment environment = new Environment(closure);
         environment.define("this", instance);
-        return new LoxFunction(declaration, environment, isInitializer);
+        return new LoxFunction(declaration, environment, isInitializer, isStatic);
     }
 
     @Override
@@ -27,6 +29,11 @@ public class LoxFunction implements LoxCallable{
     @Override
     public int arity() {
         return declaration.params.size();
+    }
+
+    public boolean isStaticMethod()
+    {
+        return isStatic;
     }
 
     @Override
