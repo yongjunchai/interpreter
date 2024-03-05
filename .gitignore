@@ -36,3 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+.vs/
+x64
+clox.vcxproj.user
